@@ -13,10 +13,10 @@ unless $if and File.readable? $if
 end
 
 begin
-	print "Username: "
+	print "Email or username: "
 	username = STDIN.gets.chomp
 
-	print "Password: "
+	print "Password (if you have one): "
 	system 'stty -echo'
 	password = STDIN.gets.chomp
 	system 'stty echo'
