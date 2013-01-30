@@ -53,4 +53,6 @@ File.open($if).each_line do |line|
 	end
 	
 	print "Got response #{response.code}\n"
+
+	sleep 1
 end
