@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+require "net/http"
+require "net/https"
+require "uri"
+
+$api_url = URI.parse("https://www.instapaper.com/api/add")
+
+$if = ARGV[0]
+unless $if and File.readable? $if
+	puts "Couldn't find input file #{$if}"
+	exit
+end
+
+print "Username: "
+username = STDIN.gets.chomp
+
+print "Password: "
+password = STDIN.gets.chomp
+
+puts "\n\n"
+
+# Grab the lines of the file
+File.open($if).each_line do |line|
+	line.strip!
+
+	# If the line contains a tab, then assume it's in "URL[tab]title" format
+	if line =~ /\t/
+		url, title = line.split("\t")
+	else
+		url = line
+	end
+
+	url = URI.parse(url)
+
+	print "Processing URL: #{url}..."
+
+	post = { 'username' => username, 'password' => password, 'url' => url.to_s }
+	if title
+		post['title'] = title
+	end
+
+	request = Net::HTTP::Post.new($api_url.path)
+	request.set_form_data(post)
+
+	sock = Net::HTTP.new($api_url.host, $api_url.port)
+	sock.use_ssl = true
+	response = sock.start { |http| http.request(request) }
+
+	if response.code == 403
+		puts "Username/password incorrect."
+		exit
+	end
+	
+	print "Got response #{response.code}\n"
+end
