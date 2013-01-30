@@ -12,11 +12,18 @@ unless $if and File.readable? $if
 	exit
 end
 
-print "Username: "
-username = STDIN.gets.chomp
+begin
+	print "Username: "
+	username = STDIN.gets.chomp
 
-print "Password: "
-password = STDIN.gets.chomp
+	print "Password: "
+	system 'stty -echo'
+	password = STDIN.gets.chomp
+	system 'stty echo'
+rescue NoMethodError, Interrupt
+	system 'stty echo'
+	exit
+end
 
 puts "\n\n"
 
