@@ -6,34 +6,55 @@ require "uri"
 
 API_URL = URI.parse("https://www.instapaper.com/api/add")
 
-$if = ARGV[0]
-unless $if and File.readable? $if
-	puts "Couldn't find input file #{$if}"
+# Fetch our URLs; either from the files given in the arguments, or from
+# STDIN.
+lines = ARGF.read
+
+unless lines
+	puts "No URLs specified."
 	exit
 end
 
-begin
-	print "Email or username: "
-	username = STDIN.gets.chomp
+lines = lines.split("\n")
 
-	print "Password (if you have one): "
-	# We don't want to echo input when the user is entering their
-	# password, to prevent shoulder surfing; so, we disable the
-	# terminal's echo temporarily.
-	system 'stty -echo'
-	password = STDIN.gets.chomp
-	system 'stty echo'
-rescue NoMethodError, Interrupt
-	# In case the user interrupts when typing their password, we don't
-	# want to leave them with a terminal that isn't echoing.
-	system 'stty echo'
-	exit
+# First, attempt to read usernames and passwords from the
+# ~/.instapaperrc file.
+rcfile = File.expand_path("~/.instapaperrc")
+if File.exists? rcfile
+	username, password = IO.read(rcfile).split("\n")
 end
 
-puts "\n\n"
+if !username && !STDIN.tty?
+	# If we haven't got a username from the rc file, and we're reading input
+	# from STDIN, then we're out of luck; we can't proceed.
+	puts "When passing URLs via STDIN, you must have an ~/.instapaperrc file containing your auth details."
+	exit
+elsif !username && STDIN.tty?
+	# If we do have a TTY (if the URLs are in a file), then we can prompt
+	# the user for their auth details.
+	begin
+		print "Email or username: "
+		username = STDIN.gets.chomp
+
+		print "Password (if you have one): "
+		# We don't want to echo input when the user is entering their
+		# password, to prevent shoulder surfing; so, we disable the
+		# terminal's echo temporarily.
+		system 'stty -echo'
+		password = STDIN.gets.chomp
+		system 'stty echo'
+	rescue NoMethodError, Interrupt
+		# In case the user interrupts when typing their password, we don't
+		# want to leave them with a terminal that isn't echoing.
+		system 'stty echo'
+		exit
+	end
+
+	puts "\n\n"
+end
 
 # Grab the lines of the file
-File.open($if).each_line do |line|
+lines.each do |line|
 	line.strip!
 
 	# If the line contains a tab, then assume it's in "URL[tab]title" format
