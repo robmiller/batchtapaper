@@ -17,10 +17,15 @@ begin
 	username = STDIN.gets.chomp
 
 	print "Password (if you have one): "
+	# We don't want to echo input when the user is entering their
+	# password, to prevent shoulder surfing; so, we disable the
+	# terminal's echo temporarily.
 	system 'stty -echo'
 	password = STDIN.gets.chomp
 	system 'stty echo'
 rescue NoMethodError, Interrupt
+	# In case the user interrupts when typing their password, we don't
+	# want to leave them with a terminal that isn't echoing.
 	system 'stty echo'
 	exit
 end
@@ -38,6 +43,7 @@ File.open($if).each_line do |line|
 		url = line
 	end
 
+	# Attempt to parse the URL that we've been given.
 	url = URI.parse(url)
 
 	print "Processing URL: #{url}..."
@@ -47,6 +53,8 @@ File.open($if).each_line do |line|
 		post['title'] = title
 	end
 
+	# We need to use this slightly more verbose syntax, rather than just
+	# Net::HTTP::post_form, because the Instapaper API uses SSL.
 	request = Net::HTTP::Post.new(API_URL.path)
 	request.set_form_data(post)
 
@@ -54,11 +62,14 @@ File.open($if).each_line do |line|
 	sock.use_ssl = true
 	response = sock.start { |http| http.request(request) }
 
+	# The Instapaper API will return a 403 error for any request if the
+	# given username and password are wrong.
 	if response.code == 403
 		puts "Username/password incorrect."
 		exit
 	end
 	
+	# We can fairly reasonably assume that any other request is valid.
 	print " Got response #{response.code}\n"
 
 	sleep 1
