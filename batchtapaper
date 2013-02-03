@@ -44,7 +44,12 @@ File.open($if).each_line do |line|
 	end
 
 	# Attempt to parse the URL that we've been given.
-	url = URI.parse(url)
+	begin
+		url = URI.parse(url)
+	rescue
+		puts "#{url} doesn't seem to be a valid URL. Moving on..."
+		continue
+	end
 
 	print "Processing URL: #{url}..."
 
