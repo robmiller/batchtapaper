@@ -4,7 +4,7 @@ require "net/http"
 require "net/https"
 require "uri"
 
-$api_url = URI.parse("https://www.instapaper.com/api/add")
+API_URL = URI.parse("https://www.instapaper.com/api/add")
 
 $if = ARGV[0]
 unless $if and File.readable? $if
@@ -47,10 +47,10 @@ File.open($if).each_line do |line|
 		post['title'] = title
 	end
 
-	request = Net::HTTP::Post.new($api_url.path)
+	request = Net::HTTP::Post.new(API_URL.path)
 	request.set_form_data(post)
 
-	sock = Net::HTTP.new($api_url.host, $api_url.port)
+	sock = Net::HTTP.new(API_URL.host, API_URL.port)
 	sock.use_ssl = true
 	response = sock.start { |http| http.request(request) }
 
