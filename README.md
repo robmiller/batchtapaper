@@ -10,12 +10,18 @@ articles](http://byliner.com/spotlights/102-spectacular-nonfiction-articles-2012
 I want to read all of them, but I don't want to have to add each one of
 them to my Instapaper account manually; so, I use Batchtapaper.
 
+## Installation
+
+You can install batchtapaper using RubyGems:
+
+	% gem install batchtapaper
+
 ## Usage
 
 The simplest way to use batchtapaper is to point it at a file containing
 some URLs:
 
-	% ./batchtapaper /path/to/urls.txt
+	% batchtapaper /path/to/urls.txt
 
 Enter your Instapaper username and password when prompted, and it should
 fly away and add them one-by-one to your account.
@@ -55,5 +61,5 @@ can use it in an ordinary chain of commands. If you've got something
 that spits out URLs, then simply pipe that output into batchtapaper and
 it will process them all:
 
-	cat urls.txt | ./batchtapaper
+	cat urls.txt | batchtapaper
 
