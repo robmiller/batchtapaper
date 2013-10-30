@@ -9,4 +9,8 @@ Gem::Specification.new do |s|
 	s.email = "rob@bigfish.co.uk"
 	s.files = ["bin/batchtapaper"]
 	s.homepage = "https://github.com/robmiller/batchtapaper"
+
+  s.add_runtime_dependency "faraday", "~> 0.8"
+
+  s.add_development_dependency "pry", "~> 0.9"
 end
