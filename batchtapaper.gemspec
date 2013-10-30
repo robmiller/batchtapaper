@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
 	s.name = "batchtapaper"
-	s.version = "1.0.0"
+	s.version = "1.1.0"
 	s.executables << 'batchtapaper'
 	s.date = "2013-03-19"
 	s.summary = "Bulk-add URLs to Instapaper"
