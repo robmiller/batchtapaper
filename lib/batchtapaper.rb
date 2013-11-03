@@ -87,7 +87,6 @@ class Batchtapaper
       end
 
       request = add(url, page[:title])
-      request = 
 
       yield(request) if block_given?
     end
