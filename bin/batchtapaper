@@ -12,9 +12,9 @@ begin
   batchtapaper = Batchtapaper.from_string(lines)
   batchtapaper.process do |request|
     if request.successful?
-      puts "Successfully added #{request.url} (#{request.title})."
+      puts "Successfully added #{request.page.url} (#{request.page.title})."
     else
-      puts "Failed to add #{request.url}."
+      puts "Failed to add #{request.page.url}."
     end
   end
 rescue Batchtapaper::NoAuthError => e
