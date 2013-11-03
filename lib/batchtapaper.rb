@@ -5,12 +5,30 @@ require "pry"
 class Batchtapaper
   attr_reader :pages, :conn, :username, :password
 
-  Request = Struct.new(:url, :title, :"successful?")
+  # A Page is a resource that we'll be adding to Instapaper.
+  Page = Struct.new(:url, :title) do
+    def valid_url?
+      begin
+        URI.parse(url)
+      rescue URI::InvalidURIError
+        return false
+      end
 
+      true
+    end
+  end
+
+  # A Request is the actual request made to Instapaper, including the
+  # response from the API.
+  Request = Struct.new(:page, :"successful?")
+
+  # This exception is raised when Batchtapaper is unable to find
+  # authentication details in an rcfile, and is unable to get user input
+  # from a TTY.
   class NoAuthError < StandardError; end
 
   def initialize(pages)
-    @pages = Array(pages)
+    @pages = Array(pages).map { |p| Page.new(p[:url], p[:title]) }
 
     @conn = Faraday.new(url: "https://www.instapaper.com") do |faraday|
       faraday.request :url_encoded
@@ -80,28 +98,23 @@ class Batchtapaper
   # Processes the URL queue, adding all of the URLs to Instapaper
   def process
     @pages.each do |page|
-      begin
-        url = URI.parse(page[:url])
-      rescue URI::InvalidURIError
-        next
-      end
+      next unless page.valid_url?
 
-      request = add(url, page[:title])
-      request = 
+      request = add(page)
 
       yield(request) if block_given?
     end
   end
 
   # Adds a given URL to Instapaper
-  def add(url, title = nil)
-    post = { username: username, password: password, url: url, title: title }.delete_if { |k, v| v.nil? }
+  def add(page)
+    post = { username: username, password: password, url: page.url, title: page.title }.delete_if { |k, v| v.nil? }
     response = conn.post "/api/add", post
 
     successful = [200, 201].include?(response.status)
-    title = response.headers["x-instapaper-title"]
+    page.title ||= response.headers["x-instapaper-title"]
 
-    Request.new(url, title, successful)
+    Request.new(page, successful)
   end
 
   class << self
