@@ -1,6 +1,7 @@
-require "faraday"
+require "bundler/setup"
+
 require "uri"
-require "pry"
+require "faraday"
 
 class Batchtapaper
   attr_reader :pages, :conn, :username, :password

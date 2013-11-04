@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 require "bundler/setup"
+
 require "batchtapaper"
-require "faraday"
 
 # Fetch our URLs; either from the files given in the arguments, or from
 # STDIN.
